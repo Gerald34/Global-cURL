@@ -12,7 +12,6 @@ class cURL {
 
     // Initialize cURL function
     private function _curlFunc($userPostData, $apiUrl) {
-        $this->settings = parse_ini_file("customer_care.ini");
         $data_str = json_encode($userPostData);
         // Init cURL object
         if($curlObj = curl_init($apiUrl)):

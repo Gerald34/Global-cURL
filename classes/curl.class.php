@@ -5,45 +5,46 @@
 // Project : Hello Paisa Transaction Portal
 
 class cURL {
-    private $settings;
+    private $userObject;
+    private $apiUrl;
+    protected $curlObj;
+    public $curlReturn;
+
     public function useCURL($userPostData, $apiUrl) {
-        return $this->_curlFunc($userPostData, $apiUrl);
+        $this->userObject = $userPostData;
+        $this->apiUrl = $apiUrl;
+        return $this->_curlFunc();
     }
 
     // Initialize cURL function
-    private function _curlFunc($userPostData, $apiUrl) {
-        $data_str = json_encode($userPostData);
+    private function _curlFunc() {
+        $data_str = json_encode($this->userObject);
+
         // Init cURL object
-        if($curlObj = curl_init($apiUrl)):
-            return $this->_execCurl($userPostData, $curlObj, $data_str);
-        else:
-            return false;
-        endif;
+        $this->curlObj = curl_init($this->apiUrl);
+        return $this->_execCurl($data_str);
+
     }
 
     // Execute and return cURL function
-    private function _execCurl($userPostData, $curlObj, $data_str) {
+    private function _execCurl($data_str) {
         try {
-            curl_setopt($curlObj, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curlObj, CURLOPT_POST, 1);
-            curl_setopt($curlObj, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($curlObj, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($curlObj, CURLOPT_POSTFIELDS, $data_str);
-            curl_setopt($curlObj, CURLOPT_HTTPHEADER, array(
+            curl_setopt($this->curlObj, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($this->curlObj, CURLOPT_POST, 1);
+            curl_setopt($this->curlObj, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($this->curlObj, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($this->curlObj, CURLOPT_POSTFIELDS, $data_str);
+            curl_setopt($this->curlObj, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($data_str)
                 )
             );
-
-            if($curl_res = curl_exec($curlObj)):
-                return json_decode($curl_res);
-            else:
-                return false;
-            endif;
-            curl_close($curlObj);
+            $this->curlReturn = curl_exec($this->curlObj);
         } catch(PDOException $e) {
             die($e->getMessage());
         }
+
+        return json_decode($this->curlReturn );
     }
 
 }
